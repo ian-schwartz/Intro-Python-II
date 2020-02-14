@@ -1,4 +1,6 @@
 from room import Room
+from player import Player
+import textwrap
 
 # Declare all the rooms
 
@@ -38,6 +40,7 @@ room['treasure'].s_to = room['narrow']
 #
 
 # Make a new player object that is currently in the 'outside' room.
+player = Player('Ian', room['outside'])
 
 # Write a loop that:
 #
@@ -49,3 +52,36 @@ room['treasure'].s_to = room['narrow']
 # Print an error message if the movement isn't allowed.
 #
 # If the user enters "q", quit the game.
+print(f'\nWelcome to the Adventure Game!\n')
+
+while True:
+    print(f'\nCurrent Room: {player.current_room.name}\n')
+    print(textwrap.TextWrapper().fill(text=player.current_room.description))
+
+    direction = input('\nSelect the Direction You Would Like to Explore (n - North, s - South, e - East, w - West, q - Quit)\n')
+
+    if direction == 'n':
+        if player.current_room.n_to == None:
+            print(f'\nYou cannot go that way!\n')
+        else: 
+            player.current_room = player.current_room.n_to
+    elif direction == 's':
+        if player.current_room.s_to == None:
+            print(f'\nYou cannot go that way!\n')
+        else:
+            player.current_room = player.current_room.s_to
+    elif direction == 'e':
+        if player.current_room.e_to == None:
+            print(f'\nYou cannot go that way!\n')
+        else:
+            player.current_room = player.current_room.e_to
+    elif direction == 'w':
+        if player.current_room.w_to == None:
+            print(f'\nYou cannot go that way!\n')
+        else:
+            player.current_room = player.current_room.w_to
+    elif direction == 'q':
+        print('\nThanks for Playing!\n')
+        exit()
+    else: 
+        print('\nInvalid Direction!')      
