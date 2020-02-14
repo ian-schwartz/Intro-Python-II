@@ -1,5 +1,6 @@
 from room import Room
 from player import Player
+from item import Item
 import textwrap
 
 # Declare all the rooms
@@ -19,10 +20,16 @@ the distance, but there is no way across the chasm."""),
 to north. The smell of gold permeates the air."""),
 
     'treasure': Room("Treasure Chamber", """You've found the long-lost treasure
-chamber! Sadly, it has already been completely emptied by
-earlier adventurers. The only exit is to the south."""),
+chamber! The only exit is to the south."""),
 }
 
+# Declare items
+items = {
+    'sword': Item('sword', 'Description: Silver, One-Handed'),
+    'shield': Item('shield', 'Description: Knight Symbol'),
+    'potion': Item('potion', 'Description: Health Boost'),
+    'chest': Item('chest', 'Description: Gold Treasure')
+}
 
 # Link rooms together
 
@@ -34,6 +41,12 @@ room['overlook'].s_to = room['foyer']
 room['narrow'].w_to = room['foyer']
 room['narrow'].n_to = room['treasure']
 room['treasure'].s_to = room['narrow']
+
+# Add room items
+room['foyer'].room_items.append(items['sword'])
+room['overlook'].room_items.append(items['shield'])
+room['narrow'].room_items.append(items['potion'])
+room['treasure'].room_items.append(items['chest'])
 
 #
 # Main
@@ -57,30 +70,59 @@ print(f'\nWelcome to the Adventure Game!\n')
 while True:
     print(f'\nCurrent Room: {player.current_room.name}\n')
     print(textwrap.TextWrapper().fill(text=player.current_room.description))
+    print(f'\n{player.current_room.current_items()}')
 
-    direction = input('\nSelect the Direction You Would Like to Explore (n - North, s - South, e - East, w - West, q - Quit)\n')
+    action = input('\nSelect the Direction You Would Like to Explore (n - North, s - South, e - East, w - West\n\nCommands (get or take item name - Pickup, drop item name - Drop, i - Inventory, q - Quit)\n').split(" ")
 
-    if direction == 'n':
+    # Take and drop commands
+    if len(action) == 2:
+        if action[0] == 'get' or action[0] == 'take':
+            found = False
+            for i in range(len(player.current_room.room_items)):
+                item = player.current_room.room_items[i]
+                if action[1] == item.name:
+                    player.items.append(player.current_room.room_items.pop(i))
+                    item.on_take()
+                    found = True
+                    break
+            if not found:
+                print(f'\n{action[1]} not found in {player.current_room.name}.')
+        elif action[0] == 'drop':
+            found = False
+            for i in range(len(player.items)):
+                item = player.items[i]
+                if action[1] == item.name:
+                    player.current_room.room_items.append(player.items.pop(i))
+                    item.on_drop()
+                    found = True
+                    break
+            if not found:
+                print(f'\n{action[1]} not found in inventory.')
+
+    #Travel directions
+    elif action[0] == 'n':
         if player.current_room.n_to == None:
             print(f'\nYou cannot go that way!\n')
         else: 
             player.current_room = player.current_room.n_to
-    elif direction == 's':
+    elif action[0] == 's':
         if player.current_room.s_to == None:
             print(f'\nYou cannot go that way!\n')
         else:
             player.current_room = player.current_room.s_to
-    elif direction == 'e':
+    elif action[0] == 'e':
         if player.current_room.e_to == None:
             print(f'\nYou cannot go that way!\n')
         else:
             player.current_room = player.current_room.e_to
-    elif direction == 'w':
+    elif action[0] == 'w':
         if player.current_room.w_to == None:
             print(f'\nYou cannot go that way!\n')
         else:
             player.current_room = player.current_room.w_to
-    elif direction == 'q':
+    elif action[0] == 'i' or action[0] == 'inventory':
+        print(player.current_inventory())
+    elif action[0] == 'q':
         print('\nThanks for Playing!\n')
         exit()
     else: 

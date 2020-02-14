@@ -5,10 +5,10 @@ class Player:
     def __init__(self, name, current_room):
         self.name = name
         self.current_room = current_room
-        self.inventory = []
+        self.items = []
 
-    def pickup_item(self, item):
-        self.inventory.append(item)
-
-    def drop_item(self, item):
-        self.inventory.remove(item)
+    def current_inventory(self):
+        if len(self.items) > 0:
+            return f'Inventory: {self.items}'
+        else:
+            return f'\nYou have no items!'
